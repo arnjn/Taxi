@@ -1,16 +1,35 @@
 using System.Collections;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using TMPro;
+using System.Collections.Generic;
+using Unity.PlasticSCM.Editor.WebApi;
 public class MainMenuControl : MonoBehaviour
 {
+    [SerializeField] TMP_Text totalCoinText;
+    [SerializeField] TMP_Text highestDistance;
+     
+    public static double CurrentHighestDistance = 0.0;
+    public static double CurrentDistance = 0.0;
     void Start()
     {
-
+        Debug.Log(Time.timeScale);
+        Time.timeScale = 1f;
     }
 
     void Update()
     {
-
+        if (CurrentHighestDistance < CurrentDistance)
+        {
+            //Debug.Log("hi");
+            CurrentHighestDistance = CurrentDistance;
+            highestDistance.text = "Score: " + CurrentHighestDistance;
+        }
+        else
+        {
+            highestDistance.text = "Score: " + CurrentHighestDistance;
+        }
+        totalCoinText.text = "$ " + MasterInfo.totalCoinCount;
     }
 
     public void StartGame()

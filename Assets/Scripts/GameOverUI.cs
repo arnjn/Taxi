@@ -2,10 +2,11 @@ using UnityEngine;
 using UnityEngine.UI;
 using System.Collections.Generic;
 using TMPro;
-
+using UnityEngine.SceneManagement;
+using System.Collections; // <-- required for non-generic IEnumerator (coroutines)
 public class GameOverUI : MonoBehaviour
 {
-    public GameObject collisionImageGameObject; 
+    public GameObject collisionImageGameObject;
     public GameObject gameOverPanel;
     public GameObject starContainer;
     public GameObject fullStarPrefab;
@@ -88,5 +89,19 @@ public class GameOverUI : MonoBehaviour
     string PickRandom(List<string> list)
     {
         return list[Random.Range(0, list.Count)];
+    }
+    
+     public void Home()
+    {
+
+        StartCoroutine(HomeButton());
+    }
+
+    IEnumerator HomeButton()
+    {
+        MainMenuControl.CurrentDistance = DistanceDisplay.d; 
+        MasterInfo.SaveRunCoins();
+        yield return new WaitForSeconds(0);
+        SceneManager.LoadScene(0);
     }
 }
