@@ -15,6 +15,12 @@ public class MainMenuControl : MonoBehaviour
     {
         Debug.Log(Time.timeScale);
         Time.timeScale = 1f;
+
+        // Show banner when main menu loads
+        if (AdManager.Instance != null)
+        {
+            AdManager.Instance.ShowBanner();
+    }
     }
 
     void Update()

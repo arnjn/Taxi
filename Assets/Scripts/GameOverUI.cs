@@ -27,7 +27,8 @@ public class GameOverUI : MonoBehaviour
     {
         collisionImageGameObject.SetActive(true);
         gameOverPanel.SetActive(true);
-
+        // Save last distance before possible revive
+        DistanceDisplay.od = DistanceDisplay.d;
         float stars = GenerateRandomStarRating(); // e.g., 3.5 or 4.0
         ShowStarImages(stars);
         reviewText.text = GenerateReview();
@@ -90,8 +91,8 @@ public class GameOverUI : MonoBehaviour
     {
         return list[Random.Range(0, list.Count)];
     }
-    
-     public void Home()
+
+    public void Home()
     {
 
         StartCoroutine(HomeButton());
@@ -99,9 +100,17 @@ public class GameOverUI : MonoBehaviour
 
     IEnumerator HomeButton()
     {
-        MainMenuControl.CurrentDistance = DistanceDisplay.d; 
+        MainMenuControl.CurrentDistance = DistanceDisplay.d;
         MasterInfo.SaveRunCoins();
         yield return new WaitForSeconds(0);
         SceneManager.LoadScene(0);
+    }
+    
+     public void RevivePlayer()
+    {
+        if (AdManager.Instance != null)
+        {
+            AdManager.Instance.ShowRewardedForRevive();
+        }
     }
 }

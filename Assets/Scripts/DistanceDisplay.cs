@@ -15,13 +15,29 @@ public class DistanceDisplay : MonoBehaviour
 
     void Start()
     {
-        startingZ = player.position.z;
+        void Start()
+{
+            if (!GameState.isReviving) // only reset on fresh start
+            {
+                startingZ = player.position.z;
+                d = 0.0;
+                od = 0.0;
 
-        if (writeToFile)
-        {
-            filePath = Path.Combine(Application.persistentDataPath, fileName);
-            File.WriteAllText(filePath, "Distance Traveled: 0\n");
-        }
+                if (writeToFile)
+                {
+                    filePath = Path.Combine(Application.persistentDataPath, fileName);
+                    File.WriteAllText(filePath, "Distance Traveled: 0\n");
+                }
+            }
+            else
+            {
+                // keep old distance — don’t reset
+                // Revive → continue from old distance 
+                GameState.isReviving = false; // clear flag so future runs are fresh
+                startingZ = player.position.z;
+    }
+}
+
     }
 
     void Update()
