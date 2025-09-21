@@ -9,7 +9,9 @@ using System.Collections;
 public class AdManager : MonoBehaviour, IUnityAdsInitializationListener, IUnityAdsLoadListener, IUnityAdsShowListener
 {
     public static AdManager Instance;
-
+    [SerializeField] string androidAdUnitId = "Rewarded_Android";
+    [SerializeField] string iosAdUnitId = "Rewarded_iOS";
+    private string adUnitId = null; // This will be set depending on the platform
     [Header("Game IDs (set from Dashboard)")]
     public string androidGameId = "YOUR_ANDROID_GAME_ID";
     public string iOSGameId     = "YOUR_IOS_GAME_ID";
@@ -29,15 +31,23 @@ public class AdManager : MonoBehaviour, IUnityAdsInitializationListener, IUnityA
 
     void Awake()
     {
-         if (Instance != null && Instance != this)
+        if (Instance == null)
         {
-            Destroy(gameObject); // prevent duplicates
-            return;
+            Instance = this;
+            DontDestroyOnLoad(gameObject);
+        }
+        else
+        {
+            Destroy(gameObject);
         }
 
-        Instance = this;
-        DontDestroyOnLoad(gameObject); // keep across scenes
+    #if UNITY_IOS
+        adUnitId = iosAdUnitId; // e.g. "Rewarded_iOS"
+    #elif UNITY_ANDROID
+        adUnitId = androidAdUnitId; // e.g. "Rewarded_Android"
+    #endif
     }
+
 
     void Start()
     {
@@ -166,7 +176,16 @@ public class AdManager : MonoBehaviour, IUnityAdsInitializationListener, IUnityA
             Debug.Log("Rewarded ad completed — Reviving player.");
             GameState.isReviving = true; // ✅ set flag before reload
             Time.timeScale = 1f;
-            SceneManager.LoadScene(1);
+            //SceneManager.LoadScene(1);
+            UnityEngine.Object.FindFirstObjectByType<GameOverUI>().RemoveGameOverScreen();
+            // Call this after reviving the player
+            ObstacleSpawner spawner = UnityEngine.Object.FindFirstObjectByType<ObstacleSpawner>();
+            if (spawner != null)
+            {
+                spawner.ClearNearbyObstacles(150f, 5f);
+            }
+
+
         });
     }
 

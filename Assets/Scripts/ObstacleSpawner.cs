@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections.Generic;
+using System.Collections;
 
 public class ObstacleSpawner : MonoBehaviour
 {
@@ -14,48 +15,48 @@ public class ObstacleSpawner : MonoBehaviour
     public Transform player;
 
 
-// === Controls for how obstacles are spaced over time ===
-[Header("Spawn Distance Settings")]
+    // === Controls for how obstacles are spaced over time ===
+    [Header("Spawn Distance Settings")]
 
-// The starting Z position at which obstacles will begin spawning
-public float spawnStartZ = 60f;
+    // The starting Z position at which obstacles will begin spawning
+    public float spawnStartZ = 60f;
 
-// Initial distance between consecutive obstacle waves (along Z)
-public float initialSpawnInterval = 300f;
+    // Initial distance between consecutive obstacle waves (along Z)
+    public float initialSpawnInterval = 300f;
 
-// The minimum allowed spacing between waves (game becomes harder as spacing decreases)
-public float minSpawnInterval = 50f;
+    // The minimum allowed spacing between waves (game becomes harder as spacing decreases)
+    public float minSpawnInterval = 50f;
 
-// How quickly the spacing between waves decreases (difficulty ramp)
-public float intervalDecreaseRate = 0.01f;
+    // How quickly the spacing between waves decreases (difficulty ramp)
+    public float intervalDecreaseRate = 0.01f;
 
-// Minimum vertical spacing between obstacles in the same wave (so they're not stacked too closely)
-public float verticalSpacing = 50f;
+    // Minimum vertical spacing between obstacles in the same wave (so they're not stacked too closely)
+    public float verticalSpacing = 50f;
 
-// Time delay (in seconds) between obstacle wave spawns
-public float spawnDelay = 5.0f;
-
-
-// === Lane information (X positions where obstacles can appear) ===
-[Header("Lane X Positions")]
-
-// X-axis positions defining the horizontal lanes for obstacle spawning
-public float[] laneXPositions = { -2.75f, 2.75f };
+    // Time delay (in seconds) between obstacle wave spawns
+    public float spawnDelay = 5.0f;
 
 
-// === Internal state ===
+    // === Lane information (X positions where obstacles can appear) ===
+    [Header("Lane X Positions")]
 
-// Current spacing used for spawning new waves (shrinks from initialSpawnInterval to minSpawnInterval)
-private float currentSpawnInterval;
+    // X-axis positions defining the horizontal lanes for obstacle spawning
+    public float[] laneXPositions = { -2.75f, 2.75f };
 
-// Z position where the next set of obstacles will be spawned
-private float nextSpawnZ;
 
-// Tracks elapsed time since last spawn wave
-private float spawnTimer = 0f;
+    // === Internal state ===
 
-// List to keep track of all spawned obstacles, so we can remove them when they're far behind the player
-private List<GameObject> spawnedObstacles = new List<GameObject>();
+    // Current spacing used for spawning new waves (shrinks from initialSpawnInterval to minSpawnInterval)
+    private float currentSpawnInterval;
+
+    // Z position where the next set of obstacles will be spawned
+    private float nextSpawnZ;
+
+    // Tracks elapsed time since last spawn wave
+    private float spawnTimer = 0f;
+
+    // List to keep track of all spawned obstacles, so we can remove them when they're far behind the player
+    private List<GameObject> spawnedObstacles = new List<GameObject>();
 
 
     void Start()
@@ -110,5 +111,35 @@ private List<GameObject> spawnedObstacles = new List<GameObject>();
                 spawnedObstacles.RemoveAt(i);
             }
         }
+    }
+    
+
+     public void ClearNearbyObstacles(float safeDistance = 100f, float duration = 5f)
+    {
+        StartCoroutine(ClearObstaclesCoroutine(safeDistance, duration));
+    }
+
+    private IEnumerator ClearObstaclesCoroutine(float safeDistance, float duration)
+    {
+        // Remove obstacles in front of the player within the safeDistance
+        for (int i = spawnedObstacles.Count - 1; i >= 0; i--)
+        {
+            GameObject obs = spawnedObstacles[i];
+            float distance = obs.transform.position.z - player.position.z;
+            if (distance >= 0 && distance <= safeDistance)
+            {
+                Destroy(obs);
+                spawnedObstacles.RemoveAt(i);
+            }
+        }
+
+        // Optionally, prevent new obstacles from spawning for a short duration
+        float originalSpawnDelay = spawnDelay;
+        spawnDelay = duration;
+
+        yield return new WaitForSeconds(duration);
+
+        // Restore the original spawn delay
+        spawnDelay = originalSpawnDelay;
     }
 }

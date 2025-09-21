@@ -34,6 +34,17 @@ public class GameOverUI : MonoBehaviour
         reviewText.text = GenerateReview();
     }
 
+    public void RemoveGameOverScreen()
+    {
+        collisionImageGameObject.SetActive(false);
+        gameOverPanel.SetActive(false);
+        // Save last distance before possible revive
+        DistanceDisplay.od = DistanceDisplay.d;
+        float stars = GenerateRandomStarRating(); // e.g., 3.5 or 4.0
+        ShowStarImages(stars);
+        reviewText.text = GenerateReview();
+    }
+
     void ShowStarImages(float starCount)
     {
         // Clear old stars
@@ -110,6 +121,7 @@ public class GameOverUI : MonoBehaviour
     {
         if (AdManager.Instance != null)
         {
+            Debug.Log("Fixxxxed");
             AdManager.Instance.ShowRewardedForRevive();
         }
     }
